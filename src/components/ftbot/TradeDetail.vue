@@ -147,6 +147,11 @@ const { showTradeCustomData } = useTradeCustomData();
         <ValuePair v-if="trade.liquidation_price !== undefined" description="Liquidation Price">
           {{ formatPrice(trade.liquidation_price) }}
         </ValuePair>
+        <TradeDetailExchangePosition
+          v-if="hasExchangePositionFields(trade)"
+          :trade="trade"
+          :stake-currency="stakeCurrency"
+        />
       </div>
       <BaseCollapsible
         v-if="trade.orders"
