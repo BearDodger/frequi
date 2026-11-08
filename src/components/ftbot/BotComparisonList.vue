@@ -34,16 +34,11 @@ const tableItems = computed<ComparisonTableItems[]>(() => {
 
     const allOpenTrades = botStore.allOpenTrades[k];
     if (!allOpenTrades) return;
-    const allStakes = allOpenTrades.reduce((a, b) => a + b.stake_amount, 0);
-    const profitOpenRatio =
-      allOpenTrades.reduce(
-        (a, b) => a + (b.total_profit_ratio ?? b.profit_ratio ?? 0) * b.stake_amount,
-        0,
-      ) / allStakes;
-    const profitOpen = allOpenTrades.reduce(
-      (a, b) => a + (b.total_profit_abs ?? b.profit_abs ?? 0),
-      0,
-    );
+    // Each bot is aggregated on its own (see utils/openProfit.ts). The Summary row only sums
+    // the absolute open profit and shows no ratio, so bots with different capital bases
+    // (stake vs. exchange-posted margin) are never mixed in one percentage.
+    const profitOpenRatio = openProfitRatio(allOpenTrades);
+    const profitOpen = openProfitAbs(allOpenTrades);
 
     // TODO: handle one inactive bot ...
     val.push({
@@ -60,6 +55,7 @@ const tableItems = computed<ComparisonTableItems[]>(() => {
       stakeCurrency: botStore.allBotState[k]?.stake_currency || '',
       profitOpenRatio,
       profitOpen,
+      profitOpenOnExchangeMargin: usesExchangeMarginBasis(allOpenTrades),
       wins: v?.winning_trades ?? 0,
       losses: v?.losing_trades ?? 0,
       balance: botStore.allBalance[k]?.total_bot ?? botStore.allBalance[k]?.total ?? 0,
@@ -181,7 +177,7 @@ const columns: TableColumn<ComparisonTableItems>[] = [
         :profit-abs="row.original.profitOpen"
         :profit-desc="`Total Profit (Open and realized) ${formatPercent(
           row.original.profitOpenRatio ?? 0.0,
-        )}`"
+        )}${row.original.profitOpenOnExchangeMargin ? ' of the margin posted on the exchange' : ''}`"
         :stake-currency="row.original.stakeCurrency"
       />
     </template>

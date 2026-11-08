@@ -6,6 +6,8 @@ export interface ComparisonTableItems {
   profitClosedRatio?: number;
   profitOpen: number;
   profitOpenRatio?: number;
+  /** profitOpenRatio is relative to exchange-posted margin (see utils/openProfit.ts) */
+  profitOpenOnExchangeMargin?: boolean;
   stakeCurrency: string;
   wins: number;
   losses: number;

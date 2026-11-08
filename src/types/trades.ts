@@ -132,6 +132,21 @@ export interface Trade extends TradeBase {
   total_profit_fiat?: number;
   /* Relative Total profit, bot open and realized */
   total_profit_ratio?: number;
+
+  /*
+   * Exchange view of the open position. Only sent by bots running with
+   * `exchange.futures_balance_from_exchange` (API version 2.50 and up); absent otherwise.
+   * null if the exchange reports no open position for the trade (not filled, liquidated, ...).
+   * Amounts are in the settlement currency of the position.
+   */
+  /** Margin posted on the position, including margin added after entry */
+  exchange_margin?: number | null;
+  /** exchange_margin - stake_amount: margin added after entry plus margin reserved on top */
+  exchange_extra_margin?: number | null;
+  /** Unrealized profit as reported by the exchange (excludes fees and funding) */
+  exchange_unrealized_pnl?: number | null;
+  /** Liquidation price as reported by the exchange */
+  exchange_liquidation_price?: number | null;
 }
 
 export interface ClosedTrade extends TradeBase {
